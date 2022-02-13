@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Piece {
+  pieceid       Int       @id @default(autoincrement()) // Pieces of informations
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  title					String    @db.VarChar(30)               // Title - max length 30
+  description		String    @db.VarChar(140)              // Description - max length 140
+  url     			String?                                 // URL 
+  path    			String?                                 // Path
+  piecetype			Decimal                                 // 1-about, 2-hero, 3-privacy policy, 4-lgpd, 5-info, 6-promo, 7-, 8-, 9-
+  extension			String?                                 // File extension
+  icon					String?                                 // Icon path/filename in the app
+  color					String?                                 // CSS style color if applicable
+  bgcolor				String?                                 // CSS style background-color if applicable
+  checkbox			Boolean   @default(false)               // If has a checkbox (true or false)
+  active				Boolean   @default(false)               // If is active (true or false)
+}
+
+model Contact {
+  contactid     String    @id @default(uuid())          // Contacts
+  createdAt     DateTime  @default(now()) 
+  updatedAt     DateTime  @updatedAt
+  validity      DateTime                                // Access validity
+  email         String                                  // Email
+  emailok				Boolean   @default(false)               // If email was confirmed (true or false)
+}
+
+model Enrolled {
+  enrolledid    Int       @id @default(autoincrement()) // Enrolleds
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  email         String    @unique                       // Confirmed email - username
+  name          String                                  // Enrolled name
+  password      String                                  // Password hash
+  tags          Tag[]                                   // Enrolled's Tags
+  references    Reference[]                             // Enrolled's References
+  privates      Private[]                               // Enrolled's Privates informations
+}
+
+model Tag {
+  tagid         Int       @id @default(autoincrement()) // Enrolled tags
+  enrolledid    Int                                     // Id of errolled
+  enrollerT     Enrolled  @relation(fields: [enrolledid], references: [enrolledid], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  name          String                                  // Tag name
+  references    Reference[]                             // The tag is on many references  
+  @@unique([enrolledid, name])
+}
+
+model Reference {
+  referenceid   Int       @id @default(autoincrement()) // References
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  enrolledid    Int                                     // Id of errolled
+  enrollerR     Enrolled  @relation(fields: [enrolledid], references: [enrolledid], onDelete: Cascade)
+  title					String                                  // Title	
+  link					String?	                                // URL if the reference is a link
+  folder				String?	                                // Path/filename is the reference is a file
+  comment				String?	                                // Comments
+  published			DateTime?                               // Published date
+  score         Decimal   @default(1)                   // Score from 1 to 5
+  private				Boolean   @default(true)                // Private (true) or Public (false)
+  qtviews       Decimal   @default(0)                   // Views quantity
+  tags          Tag[]                                   // The reference has many tags
+}
+
+model Private {
+  privateid     Int       @id @default(autoincrement()) // Privates informations
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  enrolledid    Int                                     // Id of errolled
+  enrollerR     Enrolled  @relation(fields: [enrolledid], references: [enrolledid], onDelete: Cascade)
+  title					String                                  // Title	
+  link					String?	                                // URL of the related to a link
+  comment				String?	                                // Comments
+  privated      PrivateD[]                              // Private's data
+  @@unique([enrolledid, title])
+}
+
+model PrivateD {
+  privatedid    Int       @id @default(autoincrement()) // Private data informations
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  privateid     Int                                     // Id of private
+  privateD      Private   @relation(fields: [privateid], references: [privateid], onDelete: Cascade)
+  name          String                                  // Name of private data information
+  content       String                                  // Content of private data information
+}

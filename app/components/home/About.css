@@ -1,0 +1,40 @@
+.about {
+	width: 70%;
+	height: 90%;
+	background-color: var(--color-background-alt1);
+}
+
+/* .about:hover,
+.about:focus,
+.about:active {
+	color: #000000;
+	border-color: #000000;
+	opacity: 0.8;
+} */
+
+.about h1 {
+	margin: 1rem;
+	text-align: center;
+	font-size: 2.25rem;
+}
+
+.about h2 {
+	margin: 1rem 0 1rem 0;
+	font-size: 1.5rem;
+}
+
+.about p {
+	margin: 0;
+	font-size: 1.15rem;
+	line-height: 1.5;
+	text-align: justify;
+}
+
+.footer {
+	margin: 1rem 0;
+	text-align: center;
+}
+
+.footer span {
+	font-size: 0.75rem;
+}

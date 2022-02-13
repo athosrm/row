@@ -1,0 +1,118 @@
+/*
+ * when the user visits this page, this style will apply, when they leave, it
+ * will get unloaded, so don't worry so much about conflicting styles between
+ * pages!
+ */
+
+/* body {
+	background-image: url('/images/benjamin-trosch-unsplash.jpg');
+} */
+
+.bgWrap {
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+	z-index: -1;
+}
+
+/* Sign In and Sign up CSS */
+.signinup {
+	width: 30%;
+	height: 90%;
+	color: var(--color-background-alt1);
+	background-color: var(--color-foreground);
+}
+
+.signinup p {
+	margin: 0;
+	font-size: 1.25rem;
+	line-height: 1.5;
+}
+
+.input {
+	margin: 0.5rem 0;
+	padding: 0.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	outline: none;
+}
+
+.input:hover,
+.input:focus,
+.input:active {
+	background-color: #ffffff;
+}
+
+[type='text'],
+[type='password'],
+[type='email'] {
+	color: var(--color-background-alt1);
+}
+
+.buttons {
+	display: flex;
+	align-items: left;
+	flex-direction: column;
+	/* flex-grow: 1; */
+}
+
+.button:hover,
+.button:focus,
+.button:active {
+	background-color: #ffffff;
+}
+
+.entrar {
+	margin: 1rem 0 1rem 0;
+	background-color: var(--color-background-alt2);
+}
+
+.entrar:hover,
+.entrar:focus,
+.entrar:active {
+	color: var(--color-background-alt2);
+}
+
+.cadastrar {
+	margin: 1rem 0 0 0;
+	background-color: var(--color-background-alt1);
+}
+
+.cadastrar:hover,
+.cadastrar:focus,
+.cadastrar:active {
+	color: var(--color-background-alt1);
+}
+
+.esqueci {
+	text-align: right;
+	padding-right: 5px;
+	font-size: 0.8rem;
+}
+
+.esqueci a {
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.conta {
+	padding: 0 0.75rem;
+	font-size: 0.8rem;
+	line-height: 1;
+	text-align: justify;
+}
+
+.termos p {
+	padding: 0 0.75rem;
+	font-size: 0.8rem;
+	line-height: 1;
+	text-align: justify;
+}
+
+.termos a {
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
