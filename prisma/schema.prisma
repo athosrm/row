@@ -41,7 +41,7 @@ model Enrolled {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   email         String    @unique                       // Confirmed email - username
-  name          String                                  // Enrolled name
+  name          String                                  // Enrolled name (nickname)
   password      String                                  // Password hash
   tags          Tag[]                                   // Enrolled's Tags
   references    Reference[]                             // Enrolled's References

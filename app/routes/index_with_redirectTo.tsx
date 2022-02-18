@@ -20,7 +20,7 @@ function validateEmail(email: unknown) {
 		return `Email must be at least 5 characters long`;
 	}
 	if (!email.includes('@')) {
-		return `Provide a valid email`;
+		return `Enter an email`;
 	}
 }
 
@@ -51,25 +51,25 @@ export const action: ActionFunction = async ({ request }) => {
 	const form = await request.formData();
 	const email = form.get('email');
 	const password = form.get('senha');
+	const redirectTo = form.get('redirectTo') || '/references';
 	//console.log(formData);
-	if (typeof email !== 'string' || typeof password !== 'string') {
+	if (typeof email !== 'string' || typeof password !== 'string' || typeof redirectTo !== 'string') {
 		return badRequest({ formError: `Formulário não submetido corretamente.` });
 	}
 
-	let fields = { email, password };
+	const fields = { email, password };
+	const fieldErrors = {
+		email: validateEmail(email),
+		password: validatePassword(password),
+	};
+	if (Object.values(fieldErrors).some(Boolean)) {
+		return badRequest({ fieldErrors, fields });
+	}
 
 	if (form.has('entrar')) {
-		// login to get the user if email and password were entered correctly
+		// login to get the user
 		// if there's no user, return the fields and a formError
-		// if there is a user, the login function will create their session and redirect to /references
-		let fieldErrors = {
-			email: validateEmail(email),
-			password: validatePassword(password),
-		};
-		if (Object.values(fieldErrors).some(Boolean)) {
-			return badRequest({ fieldErrors, fields });
-		}
-
+		// if there is a user, create their session and redirect to /jokes
 		const user = await login({ email, password });
 		console.log({ user });
 		if (!user) {
@@ -78,21 +78,22 @@ export const action: ActionFunction = async ({ request }) => {
 				formError: `Email/Senha incorretas. Verifique.`,
 			});
 		}
+		return createUserSession(user.enrolledid, redirectTo);
 	} else if (form.has('criar')) {
-		// create the contact if email was entered correctly
-		// the signup will redirect to /contact
-		let fieldErrors = {
-			email: validateEmail(email),
-			password: validatePassword('okokokok'),
-		};
-		if (Object.values(fieldErrors).some(Boolean)) {
-			return badRequest({ fieldErrors, fields });
-		}
-
+		// create the contact
 		const contact = await signup({ email });
-		return badRequest({ formError: `${contact}` });
+		if (!contact) {
+			return badRequest({
+				fields,
+				formError: `Something went wrong trying to create a new contact.`,
+			});
+		}
+		return createUserSession(user.id, redirectTo);
 	} else {
-		return badRequest({ formError: `Ação não identificada!!!` });
+		return badRequest({
+			fields,
+			formError: `Ação não identificada!!!`,
+		});
 	}
 
 	// return { ok: true };
@@ -115,31 +116,16 @@ export default function Index() {
 			<About />
 			{/* <SignInUp /> */}
 			<div className="card signinup">
-				<Form
-					replace
-					method="post"
-					aria-hidden={state === 'success'}
-					aria-describedby={actionData?.formError ? 'form-error-message' : undefined}
-				>
+				<Form replace method="post" aria-hidden={state === 'success'}>
 					<div>
 						<div className="input">
 							<label htmlFor="email">Email</label>
 							<input type="email" id="email" name="email" required />
-							{actionData?.fieldErrors?.email ? (
-								<p className="form-validation-error" role="alert" id="email-error">
-									{actionData?.fieldErrors.email}
-								</p>
-							) : null}
 						</div>
 
 						<div className="input">
 							<label htmlFor="senha">Senha</label>
 							<input id="senha" name="senha" type="password" />
-							{actionData?.fieldErrors?.password ? (
-								<p className="form-validation-error" role="alert" id="password-error">
-									{actionData?.fieldErrors.password}
-								</p>
-							) : null}
 						</div>
 
 						<div className="esqueci">

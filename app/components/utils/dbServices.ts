@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { createCookieSessionStorage, redirect } from 'remix';
 import { db } from './dbServer';
+import { emailBounceBuster } from './emailBounceBuster';
+import { emailZeroBounce } from './emailZeroBounce';
 
 type Email = { email: string };
 
@@ -15,25 +17,44 @@ type ConfirmForm = {
 	passwordInf: string;
 };
 
-export async function register({ email }: Email) {
+export async function signup({ email }: Email) {
+	// Verify if email exists in the enrolled table
 	const enrolled = await db.enrolled.findUnique({ where: { email } });
-	if (enrolled) return null;
+	if (enrolled) {
+		return 'Email já existe!';
+	}
 
+	// Verify if email exists. Zero Bounce or Bounce Buster
+	const emailZB = await emailZeroBounce({ email });
+	console.log(emailZB);
+
+	const emailBB = await emailBounceBuster({ email });
+	console.log(emailBB);
+
+	// Expiration date = today's date plus 2
 	const validity = new Date();
 	validity.setDate(validity.getDate() + 2);
 
-	return db.contact.create({ data: { validity, email } });
+	// Insert contact
+	const contact = await db.contact.create({ data: { validity, email } });
+	if (!contact) {
+		return 'Erro na criação da conta!';
+	}
+
+	// Go to Contact information page to confirm email
+	return redirect('/contact');
 }
 
 export async function confirm({ id, name, passwordInf }: ConfirmForm) {
 	const contact = await db.contact.findUnique({ where: { contactid: id } });
 	if (!contact) return null;
 
-	// Expired or confirmed
+	// If the validity data was expired
 	if (contact.validity < new Date()) {
 		return null;
 	}
 
+	// If email was already confirmed
 	if (contact.emailok) {
 		return null;
 	}
@@ -61,17 +82,14 @@ export async function confirm({ id, name, passwordInf }: ConfirmForm) {
 }
 
 export async function login({ email, password }: LoginForm) {
-	const enrolled = await db.enrolled.findUnique({
-		where: { email },
-	});
-
+	const enrolled = await db.enrolled.findUnique({ where: { email } });
 	if (!enrolled) return null;
 
 	const isCorrectPassword = await bcrypt.compare(password, enrolled.password);
-
 	if (!isCorrectPassword) return null;
 
-	return enrolled;
+	return createUserSession(enrolled.enrolledid, '/references');
+	// return enrolled;
 }
 
 const sessionSecret = process.env.SESSION_SECRET;
